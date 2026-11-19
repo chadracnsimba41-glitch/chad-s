@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TalentsLink — Trouvez et proposez des services</title>
+<style>
+:root{--blue:#2457d6;--navy:#14213d;--bg:#f5f7fb;--muted:#687386;--line:#e5e9f2}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--navy)}
+header{background:white;border-bottom:1px solid var(--line);padding:17px 6%;display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0}
+.logo{font-size:24px;font-weight:800;color:var(--blue)}.logo span{color:var(--navy)}
+nav a{margin-left:20px;color:var(--navy);text-decoration:none;font-weight:600}
+.hero{padding:62px 6%;background:linear-gradient(120deg,#eaf0ff,#fff);text-align:center}
+.hero h1{font-size:clamp(30px,5vw,48px);margin:0 0 14px}.hero p{color:var(--muted);font-size:18px}
+.wrap{max-width:1120px;margin:28px auto;padding:0 20px}
+.tools{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}
+input,select,textarea{padding:12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:white}
+#search{flex:1;min-width:220px}
+button,.btn{background:var(--blue);color:white;border:0;border-radius:10px;padding:12px 18px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+button:hover,.btn:hover{filter:brightness(.94)}
+.categories{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0 25px}
+.categories button{background:#e9efff;color:var(--blue)}.categories button.active{background:var(--blue);color:white}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:18px}
+.card{background:white;border:1px solid var(--line);border-radius:16px;padding:19px;box-shadow:0 5px 18px #172b4d0a}
+.tag{display:inline-block;background:#edf2ff;color:var(--blue);padding:5px 9px;border-radius:20px;font-size:12px;font-weight:bold}
+.card h3{margin:12px 0 7px}.muted{color:var(--muted);line-height:1.5}.price{font-size:21px;font-weight:800;margin:14px 0}
+section h2{margin-top:35px}
+form{display:grid;gap:12px;max-width:650px}
+form input,form select,form textarea{width:100%}
+footer{text-align:center;padding:30px;color:var(--muted);margin-top:45px}
+.empty{padding:30px;text-align:center;background:white;border-radius:14px;color:var(--muted)}
+@media(max-width:600px){header{align-items:flex-start;flex-direction:column}nav a{margin:0 12px 0 0}.hero{padding:42px 18px}}
+</style>
+</head>
+<body>
+<header><div class="logo">Talents<span>Link</span></div><nav><a href="#services">Services</a><a href="#publier">Publier un service</a></nav></header>
+<div class="hero"><h1>Les talents se rencontrent ici.</h1><p>Découvrez des prestataires près de vous ou faites connaître vos compétences.</p><a class="btn" href="#services">Découvrir les services</a></div>
+<main class="wrap">
+<section id="services"><h2>Services disponibles</h2><div class="tools"><input id="search" placeholder="Rechercher un service ou un talent…"><select id="category"><option value="">Toutes les catégories</option><option>Informatique</option><option>Électricité</option><option>Design</option><option>Formation</option><option>Beauté</option><option>Autre</option></select></div><div class="grid" id="listings"></div></section>
+<section id="publier"><h2>Proposer un service</h2><p class="muted">Présentez votre compétence pour être contacté par des clients.</p>
+<form id="serviceForm"><input id="title" placeholder="Nom du service" required><select id="cat" required><option value="">Choisir une catégorie</option><option>Informatique</option><option>Électricité</option><option>Design</option><option>Formation</option><option>Beauté</option><option>Autre</option></select><input id="provider" placeholder="Votre nom" required><input id="price" placeholder="Prix indicatif (ex. 10 USD)" required><textarea id="description" rows="3" placeholder="Décrivez votre service" required></textarea><input id="phone" placeholder="Numéro WhatsApp avec indicatif (ex. 243...)" required><button type="submit">Publier mon service</button></form>
+</section>
+</main>
+<footer>© 2026 TalentsLink — La plateforme qui connecte les talents aux opportunités.</footer>
+<script>
+const initial=[
+{title:"Création de sites web",cat:"Informatique",provider:"Prestataire TalentsLink",price:"À discuter",description:"Création de sites vitrines et pages web.",phone:""},
+{title:"Installation électrique",cat:"Électricité",provider:"Prestataire TalentsLink",price:"Sur devis",description:"Installation et dépannage électrique à domicile.",phone:""},
+{title:"Création d'affiches",cat:"Design",provider:"Prestataire TalentsLink",price:"À discuter",description:"Flyers, affiches et visuels pour vos activités.",phone:""}
+];
+let services=JSON.parse(localStorage.getItem("talentslink-services")||"null")||initial;
+const list=document.getElementById("listings");
+function render(){const q=document.getElementById("search").value.toLowerCase();const c=document.getElementById("category").value;
+const found=services.filter(s=>(!c||s.cat===c)&&(`${s.title} ${s.provider} ${s.description}`).toLowerCase().includes(q));
+list.innerHTML=found.length?found.map(s=>`<article class="card"><span class="tag">${esc(s.cat)}</span><h3>${esc(s.title)}</h3><div class="muted">Par ${esc(s.provider)}</div><p class="muted">${esc(s.description)}</p><div class="price">${esc(s.price)}</div>${s.phone?`<a class="btn" target="_blank" rel="noopener" href="https://wa.me/${s.phone.replace(/\\D/g,'')}">Contacter sur WhatsApp</a>`:'<span class="muted">Contact à définir</span>'}</article>`).join(""):'<div class="empty">Aucun service trouvé. Essayez une autre recherche.</div>'}
+function esc(v){return String(v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+document.getElementById("search").addEventListener("input",render);document.getElementById("category").addEventListener("change",render);
+document.getElementById("serviceForm").addEventListener("submit",e=>{e.preventDefault();services.unshift({title:title.value,cat:cat.value,provider:provider.value,price:price.value,description:description.value,phone:phone.value});localStorage.setItem("talentslink-services",JSON.stringify(services));e.target.reset();render();alert("Service ajouté sur cet appareil !")});
+render();
+</script>
+</body></html>
